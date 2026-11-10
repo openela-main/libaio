@@ -1,12 +1,9 @@
 Name: libaio
-Version: 0.3.111
-Release: 22%{?dist}
+Version: 0.3.112
+Release: 1%{?dist}
 Summary: Linux-native asynchronous I/O access library
 License: LGPL-2.0-or-later
-Source: http://releases.pagure.org/libaio/libaio-0.3.111.tar.gz
-
-Patch1: libaio-install-to-destdir-slash-usr.patch
-Patch2: libaio-remove-nostartfiles-nostdlib-from-build-flags.patch
+Source: https://codeberg.org/jmoyer/libaio/releases/download/libaio-0.3.112/libaio-0.3.112.tar.gz
 
 BuildRequires: gcc
 BuildRequires: make
@@ -32,10 +29,6 @@ for the Linux-native asynchronous I/O facility ("async I/O", or "aio").
 
 %prep
 %setup -q -a 0
-%patch1 -p0 -b .install-to-destdir-slash-usr
-%patch1 -p1 -b .install-to-destdir-slash-usr
-%patch2 -p0 -b .nostdlib
-%patch2 -p1 -b .nostdlib
 mv %{name}-%{version} compat-%{name}-%{version}
 
 %build
@@ -58,7 +51,7 @@ cd compat-%{name}-%{version}
 install -D -m 755 src/libaio.so.1.0.0 \
   $RPM_BUILD_ROOT/%{usrlibdir}/libaio.so.1.0.0
 cd ..
-make destdir=$RPM_BUILD_ROOT prefix=/ libdir=%{libdir} usrlibdir=%{usrlibdir} \
+make DESTDIR=$RPM_BUILD_ROOT prefix=/usr libdir=%{_libdir} \
 	includedir=%{_includedir} install
 
 find %{buildroot} -name '*.a' -delete
@@ -74,6 +67,10 @@ find %{buildroot} -name '*.a' -delete
 %attr(0755,root,root) %{usrlibdir}/libaio.so
 
 %changelog
+* Tue Jul 07 2026 Jeff Moyer <jmoyer@redhat.com> - 0.3.112-1
+- Rebase to 0.3.112 to pull in async poll support.
+- Resolves: RHEL-192961
+
 * Wed Dec 11 2024 Jeff Moyer <jmoyer@redhat.com> - 0.3.111-22
 - Bump release to trigger new test run.
 - Resolves: RHEL-70741
